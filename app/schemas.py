@@ -8,12 +8,27 @@ from datetime import datetime
 #
 #This is an example of Object Oriented Design: we can add validators, make child
 #models, custom funcs, etc.
-class Item(BaseModel):
+class ItemBase(BaseModel):
     name: str
     description: str
     quantity: int
+    #tags: List[str] This is tough since its a list. We could use an arraytype in whatever ORM or most sensibly create a posts table and backpopulate it
+    #add an id for the db
+
+class ItemCreate(ItemBase):
+    pass
+
+class ItemUpdate(ItemBase):
+    pass
+
+
+
+class Item(ItemBase):
+    id: int
     dateAdded: datetime
     dateEdited: datetime
-    tags: List[str]
-    #add an id for the db
+
+    class config:
+        orm_mode = True
+
 

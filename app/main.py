@@ -1,4 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+from .database import engine, get_db, Base
+from . import schemas, CRUDutils
 
 
 #This creates the main application.
@@ -9,24 +12,31 @@ app = FastAPI()
 #On whatever URL this app is hosted on, for example 127.0.0.1
 #127.0.0.1/ will return with this JSON message 
 @app.get("/")
-async def root():
+def root():
     return {"message": "Hello World"}
 
 
 #CRUD stuff
+Base.metadata.create_all(bind=engine)
 
-@app.get("/item/{id}")
-async def getItem(id: int):
-    return
+
+@app.get("/items")
+def getItems(db: Session = Depends(get_db)):
+    return CRUDutils.get_items(db)
+
+@app.get("/item{id}")
+def getItem(id: int, db: Session = Depends(get_db)):
+    return CRUDutils.get_item(db, id)
+
 
 @app.post("/add")
-async def addItem():
-    return
+def addItem(item: schemas.ItemCreate, db: Session = Depends(get_db)):
+    return CRUDutils.create_item(db, item)
 
 @app.patch("/edit/{id}")
-async def editItem(id: int):
+def editItem(id: int):
     return
 
 @app.delete("/remove/{id}")
-async def removeItem(id: int):
-    return
+def removeItem(id: int, db: Session = Depends(get_db)):
+    return CRUDutils.delete(db, id)
