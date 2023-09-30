@@ -31,6 +31,18 @@ def delete(db: Session, id: int):
 #ahhh ill do it later
 def update(db: Session, id: int, item: schemas.ItemUpdate):
     obj = db.query(models.ItemModel).filter(models.ItemModel.id == id).first()
+    if not obj:
+        raise Exception("Item does not exist")
+    
+    dict_item = dict(item)
+    for field in dict_item:
+        #Need to add filtering for restricted rows
+        setattr(obj, field, dict_item[field])
+    
+    db.add(obj)
+    db.commit()
+    db.refresh(obj)
+
     return obj
 
 

@@ -34,8 +34,8 @@ def addItem(item: schemas.ItemCreate, db: Session = Depends(get_db)):
     return CRUDutils.create_item(db, item)
 
 @app.patch("/edit/{id}")
-def editItem(id: int):
-    return
+def editItem(id: int, item : schemas.ItemUpdate, db: Session = Depends(get_db)):
+    return CRUDutils.update(db, id, item)
 
 @app.delete("/remove/{id}")
 def removeItem(id: int, db: Session = Depends(get_db)):
