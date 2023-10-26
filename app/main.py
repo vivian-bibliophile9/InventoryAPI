@@ -1,19 +1,20 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
 from sqlalchemy.orm import Session
+from fastapi.templating import Jinja2Templates
 from .database import engine, get_db, Base
 from . import schemas, CRUDutils
 
 
 #This creates the main application.
 app = FastAPI()
-
+templates = Jinja2Templates(directory="app/templates/")
 
 #This is an example of a API route.
 #On whatever URL this app is hosted on, for example 127.0.0.1
 #127.0.0.1/ will return with this JSON message 
 @app.get("/")
-def root():
-    return {"message": "Hello World"}
+def root(request: Request):
+     return templates.TemplateResponse("index.html", {"request": request})
 
 
 #CRUD stuff
@@ -21,8 +22,9 @@ Base.metadata.create_all(bind=engine)
 
 
 @app.get("/items")
-def getItems(db: Session = Depends(get_db)):
-    return CRUDutils.get_items(db)
+def getItems(request: Request, db: Session = Depends(get_db)):
+    items = CRUDutils.get_items(db)
+    return templates.TemplateResponse("items.html", {"request": request, "items": items})
 
 @app.get("/item{id}")
 def getItem(id: int, db: Session = Depends(get_db)):
@@ -40,3 +42,4 @@ def editItem(id: int, item : schemas.ItemUpdate, db: Session = Depends(get_db)):
 @app.delete("/remove/{id}")
 def removeItem(id: int, db: Session = Depends(get_db)):
     return CRUDutils.delete(db, id)
+
